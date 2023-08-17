@@ -1,0 +1,14 @@
+{
+  "name": "vitest-environment-clarinet",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {},
+  "keywords": [],
+  "author": "hirosystems",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "obscurity-sdk": "file:../"
+  }
+}
