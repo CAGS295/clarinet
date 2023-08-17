@@ -23,14 +23,11 @@ function getArgv() {
 
 const argv = getArgv();
 
-console.log("-".repeat(20));
-console.log(process.cwd());
-
 export default defineConfig({
   test: {
     environment: "clarinet",
     singleThread: true,
-    setupFiles: ["node_modules/obscurity-sdk/vitest.setup.js"],
+    setupFiles: ["node_modules/obscurity-sdk/vitest.setup.ts"],
     environmentOptions: {
       clarinet: argv,
     },

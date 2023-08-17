@@ -1,6 +1,6 @@
 {
   "name": "obscurity-sdk",
-  "version": "0.4.0-rc1",
+  "version": "0.4.0-rc10",
   "description": "clarity testing lib",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
     "dist",
     "vitest-environment-clarinet",
     "vitest.config.js",
-    "vitest.setup.js"
+    "vitest.setup.ts"
   ],
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",
