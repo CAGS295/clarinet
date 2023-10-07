@@ -1,6 +1,8 @@
 use clarity_repl::clarity::stacks_common::types::StacksEpochId;
+use clarity_repl::clarity::warn;
 use clarity_repl::repl::{ClarityCodeSource, ClarityContract, ContractDeployer};
 use clarity_repl::repl::{DEFAULT_CLARITY_VERSION, DEFAULT_EPOCH};
+use reqwest::Url;
 
 extern crate serde;
 
@@ -227,13 +229,49 @@ pub async fn generate_default_deployment(
         StacksNetwork::Devnet => {
             let (stacks_node, bitcoin_node) = match network_manifest.devnet {
                 Some(ref devnet) => {
-                    let stacks_node = format!("http://localhost:{}", devnet.stacks_node_rpc_port);
-                    let bitcoin_node = format!(
-                        "http://{}:{}@localhost:{}",
-                        devnet.bitcoin_node_username,
-                        devnet.bitcoin_node_password,
-                        devnet.bitcoin_node_rpc_port
-                    );
+                    let stacks_node = network_manifest
+                        .network
+                        .stacks_node_rpc_address
+                        .and_then(|url| {
+                            Url::parse(&url)
+                                .map_err(|e| {
+                                    warn!("Invalid stacks node rpc address: {} {e}", url);
+                                    e
+                                })
+                                .map(|mut url| {
+                                    if url.port().is_none() {
+                                        let _ = url.set_port(Some(devnet.stacks_node_rpc_port));
+                                    }
+                                    url.to_string()
+                                })
+                                .ok()
+                        })
+                        .unwrap_or_else(|| {
+                            format!("http://localhost:{}", devnet.stacks_node_rpc_port)
+                        });
+                    let bitcoin_node = network_manifest
+                        .network
+                        .bitcoin_node_rpc_address
+                        .and_then(|url| {
+                            Url::parse(&url)
+                                .map_err(|e| {
+                                    warn!("Invalid bitcoin node address: {} {e}", url);
+                                    e
+                                })
+                                .map(|mut url| {
+                                    if url.port().is_none() {
+                                        let _ = url.set_port(Some(devnet.bitcoin_node_rpc_port));
+                                    }
+                                    let _ = url.set_username(devnet.bitcoin_node_username.as_str());
+                                    let _ = url.set_password(Some(&devnet.bitcoin_node_password));
+                                    url.to_string()
+                                })
+                                .ok()
+                        })
+                        .unwrap_or_else(|| {
+                            format!("http://localhost:{}", devnet.stacks_node_rpc_port)
+                        });
+
                     (stacks_node, bitcoin_node)
                 }
                 None => {
